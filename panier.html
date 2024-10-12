@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADVshop - Panier</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #0e0f17;
+            color: white;
+        }
+        header {
+            background-color: #15171e;
+            padding: 0 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        .menu img {
+            height: 120px;
+            width: auto;
+        }
+        .cart-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .cart-icon img {
+            width: 24px;
+            height: 24px;
+        }
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            position: absolute;
+            right: 20px;
+        }
+        .user-icon img {
+            width: 20px;
+            height: 20px;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .breadcrumb {
+            color: #999;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .product {
+            background-color: #1c1e29;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product:hover {
+            transform: scale(1.05);
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .product h3 {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .product .price {
+            color: #38a8ed;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .product button {
+            background-color: #38a8ed;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: auto;
+        }
+        .product button:hover {
+            background-color: #4eafec;
+        }
+
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100%;
+            background-color: #1c1e29;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            visibility: hidden;
+        }
+        .cart-sidebar.open {
+            right: 0;
+            visibility: visible;
+        }
+        .cart-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .cart-sidebar-header h3 {
+            margin: 0;
+            font-size: 14px;
+        }
+        .cart-sidebar-header button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .cart-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .cart-item-details {
+            flex: 1;
+        }
+        .cart-item-price {
+            font-size: 12px;
+            color: #38a8ed;
+        }
+        .cart-subtotal {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+            font-size: 14px;
+        }
+        .cart-subtotal span {
+            display: block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .cart-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .cart-actions button {
+            padding: 10px 15px;
+            border: none;
+            font-size: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex: 1;
+        }
+        .btn-view-cart {
+            background-color: #333;
+            color: white;
+        }
+        .btn-checkout {
+            background-color: #38a8ed;
+            color: white;
+        }
+        .btn-checkout:hover {
+            background-color: #4eafec;
+        }
+
+        /* Notification Modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+        }
+
+        .modal-content {
+            background-color: #15171e; /* Dark gray background to match the site */
+            margin: 20% auto; /* Centered modal */
+            padding: 15px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .modal-content h2 {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #ffff; /* Red color for error */
+        }
+
+        .modal-content p {
+            margin: 5px 0 15px;
+            color: #cfcfcf; /* Light gray text for details */
+        }
+
+        /* Smaller input box with white text */
+        .modal-content input[type="number"] {
+            width: 80px; /* Smaller input field */
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #1e1f29;
+            color: white; /* White text */
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .modal-content button {
+            background-color: #38a8ed;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #4eafec;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav class="menu">
+        <img src="images/image.png" alt="Logo">
+    </nav>
+    <div class="icons">
+        <div class="user-icon">
+            <img src="https://media.discordapp.net/attachments/1254571606399782943/1294391318528786494/login-icon-3.png?ex=670b801a&is=670a2e9a&hm=8c804fcb502e324c5e8b8503d078b29c369da0317ae3f437f0d2bd71a6850d70&=&format=webp&quality=lossless&width=613&height=676" alt="User Icon">
+        </div>
+        <div class="cart-icon" onclick="openCart()">
+            <img src="https://creazilla-store.fra1.digitaloceanspaces.com/icons/3253308/handbag-icon-md.png" alt="Cart Icon">
+            <div class="cart-count" id="cart-count">0</div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <p class="breadcrumb">Home / Accounty</p>
+
+    <div class="products">
+        <div class="product">
+            <img src="images/fivem.webp" alt="Acc Fivem Fresh">
+            <h3>Acc Fivem Fresh</h3>
+            <p class="price">0.80 €</p>
+            <button onclick="askForQuantity('Acc Fivem Fresh', 0.80, 'images/fivem.webp')">Ajouter au panier</button>
+        </div>
+        <div class="product">
+            <img src="images/red.webp" alt="Red Dead Redemption II">
+            <h3>Red Dead Redemption II</h3>
+            <p class="price">4.00 €</p>
+            <button onclick="addToCart('Red Dead Redemption II', 4.00, 'images/red.webp')">Ajouter au panier</button>
+        </div>
+        <div class="product">
+            <img src="images/chaine.png" alt="Chained Together (PC)">
+            <h3>Chained Together (PC)</h3>
+            <p class="price">3.50 €</p>
+            <button onclick="addToCart('Chained Together (PC)', 3.50, 'images/chaine.png')">Ajouter au panier</button>
+        </div>
+        <div class="product">
+            <img src="images/ForzaH5.jpg" alt="Forza Horizon 5">
+            <h3>Forza Horizon 5</h3>
+            <p class="price">9.00 €</p>
+            <button onclick="addToCart('Forza Horizon 5', 8.00, 'images/ForzaH5.jpg')">Ajouter au panier</button>
+        </div>
+        <div class="product">
+            <img src="images/escape-the-backrooms-729543.8.webp" alt="Escape the Backrooms">
+            <h3>Escape the Backrooms</h3>
+            <p class="price">6.50 €</p>
+            <button onclick="addToCart('Escape the Backrooms', 6.50, 'images/escape-the-backrooms-729543.8.webp')">Ajouter au panier</button>
+        </div>
+        <div class="product">
+            <img src="images/rust-20218417103371_1 (1).jpg" alt="Rust">
+            <h3>Rust</h3>
+            <p class="price">8.00 €</p>
+            <button onclick="addToCart('Rust', 8.00, 'images/rust-20218417103371_1 (1).jpg')">Ajouter au panier</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Sidebar -->
+<div id="cart-sidebar" class="cart-sidebar">
+    <div class="cart-sidebar-header">
+        <h3>Votre Panier</h3>
+        <button onclick="closeCart()">X</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="cart-subtotal">
+        <span id="cart-total">Sous-total : 0,00 €</span>
+        <div class="cart-actions">
+            <button class="btn-view-cart">Voir le panier</button>
+            <button class="btn-checkout">Payer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Quantity Notification Modal -->
+<div id="quantityModal" class="modal">
+    <div class="modal-content">
+        <h2>Combien de comptes souhaitez-vous ?</h2>
+        <input type="number" id="accountQuantity" min="1" value="1">
+        <button onclick="confirmQuantity()">Confirmer</button>
+    </div>
+</div>
+
+<script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let currentProduct = {};
+
+    // Function to ask for quantity when adding "Acc Fivem Fresh"
+    function askForQuantity(name, price, image) {
+        currentProduct = { name, price, image };
+        const modal = document.getElementById('quantityModal');
+        modal.style.display = 'block';
+    }
+
+    // Function to confirm the quantity and add to cart
+    function confirmQuantity() {
+        const quantity = parseInt(document.getElementById('accountQuantity').value);
+        if (quantity > 0) {
+            addToCart(currentProduct.name, currentProduct.price, currentProduct.image, quantity);
+            closeQuantityModal();
+        }
+    }
+
+    // Function to close the quantity modal
+    function closeQuantityModal() {
+        const modal = document.getElementById('quantityModal');
+        modal.style.display = 'none';
+    }
+
+    // Function to add an item to the cart with quantity
+    function addToCart(name, price, image, quantity = 1) {
+        const existingItemIndex = cart.findIndex(item => item.name === name);
+
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].quantity += quantity;
+        } else {
+            cart.push({ name, price, image, quantity });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+        openCart();
+    }
+
+    // Function to update the cart display
+    function updateCart() {
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const cartTotal = document.getElementById('cart-total');
+
+        cartItemsContainer.innerHTML = '';
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            const cartItem = document.createElement('div');
+            cartItem.classList.add('cart-item');
+            cartItem.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" width="50" height="50">
+                <div class="cart-item-details">
+                    <h4>${item.name} <span>x${item.quantity}</span></h4>
+                    <span class="cart-item-price">${(item.price * item.quantity).toFixed(2)} €</span>
+                </div>
+                <button onclick="removeFromCart(${index})">X</button>
+            `;
+            cartItemsContainer.appendChild(cartItem);
+            total += item.price * item.quantity;
+        });
+
+        cartCount.textContent = cart.reduce((acc, item) => acc + item.quantity, 0);
+        cartTotal.textContent = `Sous-total : ${total.toFixed(2)} €`;
+    }
+
+    // Function to remove an item from the cart
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+    }
+
+    // Function to open the cart sidebar
+    function openCart() {
+        const sidebar = document.getElementById('cart-sidebar');
+        sidebar.classList.add('open');
+        sidebar.style.visibility = 'visible';
+    }
+
+    // Function to close the cart sidebar
+    function closeCart() {
+        const sidebar = document.getElementById('cart-sidebar');
+        sidebar.classList.remove('open');
+        sidebar.style.visibility = 'hidden';
+    }
+
+    // Initialize cart display when page loads
+    updateCart();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Gestion des Commandes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333; /* Gris foncé pour le fond */
+            color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .panel {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #555; /* Gris clair pour encadrer le contenu */
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #666; /* Gris pour le fond des titres */
+        }
+        .form-container {
+            text-align: 120px;
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="password"], textarea {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 95%;
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #38a8ed;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4eafec;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .copy-text {
+            background-color: #666; /* Fond gris pour encadrer le texte */
+            padding: 10px;
+            border: 1px solid #888; /* Bordure gris clair */
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #f5f5f5; /* Couleur du texte */
+        }
+        .copy-btn {
+            background-color: #4eafec;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+        }
+        .copy-btn:hover {
+            background-color: #38a8ed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h2>Gestion des Commandes</h2>
+    
+    <div class="copy-text" id="textToCopy">
+        Voici le texte que tu peux copier.
+    </div>
+    <button class="copy-btn" onclick="copyText()">Copier le texte</button>
+
+    <table id="orders-table">
+        <thead>
+            <tr>
+                <th>Numéro de Commande</th>
+                <th>Produits</th>
+                <th>Prix Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Commandes dynamiques seront insérées ici -->
+        </tbody>
+    </table>
+
+    <div class="form-container">
+        <input type="text" id="orderNumber" placeholder="Numéro de commande">
+        <input type="password" id="adminPassword" placeholder="Mot de passe administrateur">
+        <textarea id="customMessage" rows="4" placeholder="Message personnalisé"></textarea>
+        <button onclick="validateOrder()">Valider la commande</button>
+    </div>
+
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+    // Récupérer les commandes depuis localStorage
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    const correctPassword = 'Salope';  // Définissez ici votre mot de passe
+
+    function loadOrders() {
+        const tableBody = document.querySelector('#orders-table tbody');
+        tableBody.innerHTML = ''; // Vider le tableau avant de le recharger
+
+        orders.forEach((order, orderIndex) => {
+            let productsDetails = '';
+            order.cart.forEach(item => {
+                productsDetails += `${item.name} x${item.quantity} <br>`;
+            });
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${order.orderNumber}</td>
+                <td>${productsDetails}</td>
+                <td>${order.totalPrice} €</td>
+                <td id="actions-${order.orderNumber}">
+                    <button class="delete-btn" onclick="deleteOrder(${orderIndex})">Refuser</button>
+                    <button class="accept-btn" onclick="acceptOrder(${orderIndex})">Accepter</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function copyText() {
+        const textToCopy = document.getElementById('textToCopy').textContent;
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = textToCopy;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Texte copié !');
+    }
+
+    // Supprimer une commande
+    function deleteOrder(orderIndex) {
+        orders.splice(orderIndex, 1);
+        localStorage.setItem('orders', JSON.stringify(orders));
+        loadOrders(); // Recharger les commandes après suppression
+        alert('Commande refusée avec succès.');
+    }
+
+    // Valider la commande après vérification du numéro de commande et du mot de passe
+    function validateOrder() {
+        const orderNumberInput = document.getElementById('orderNumber').value;
+        const passwordInput = document.getElementById('adminPassword').value;
+        const messageElement = document.getElementById('message');
+        const customMessage = document.getElementById('customMessage').value;
+
+        // Vérifier si le mot de passe est correct
+        if (passwordInput === correctPassword) {
+            // Vérifier si le numéro de commande existe
+            const order = orders.find(o => o.orderNumber === orderNumberInput);
+            if (order) {
+                order.customMessage = customMessage;  // Enregistrer le message personnalisé
+                localStorage.setItem('orders', JSON.stringify(orders));
+                messageElement.textContent = `Commande ${orderNumberInput} validée avec succès !`;
+                messageElement.className = 'message success';
+            } else {
+                messageElement.textContent = `Numéro de commande incorrect. Veuillez réessayer.`;
+                messageElement.className = 'message error';
+            }
+        } else {
+            messageElement.textContent = 'Mot de passe incorrect. Commande non validée.';
+            messageElement.className = 'message error';
+        }
+    }
+
+    // Accepter une commande
+    function acceptOrder(orderIndex) {
+        const order = orders[orderIndex];
+        const actionsCell = document.getElementById(`actions-${order.orderNumber}`);
+        
+        // Remplacer les boutons par un logo "Accepté" et le message personnalisé
+        actionsCell.innerHTML = `
+            <img src="images/accepted-logo.png" alt="Accepté" class="accepted-logo">
+            <span>${order.customMessage || 'Commande acceptée'}</span>
+        `;
+
+        alert('Commande acceptée avec succès.');
+    }
+
+    // Charger les commandes dès que la page est ouverte
+    window.onload = loadOrders;
+</script>
+
+</body>
+</html>

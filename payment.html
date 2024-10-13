@@ -6,7 +6,7 @@
     <title>Payment Panel</title>
     <style>
         body {
-            background-color: #111;
+            background-color: #111; /* Fond gris foncé */
             color: #fff;
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -51,40 +51,26 @@
             font-size: 16px;
             margin: 0;
         }
-        .email-copy, .note-copy {
-            background-color: #242222;
+        .text-panel {
+            background-color: #333; /* Gris clair pour l'encadré */
             padding: 10px;
             border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            color: #fff;
             width: 100%;
             max-width: 400px;
+            text-align: left;
             position: relative;
         }
-        .email-copy input, .note-copy input {
-            background-color: transparent;
+        .copy-btn {
+            background-color: #4eafec;
+            color: white;
             border: none;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: left;
-            width: 85%;
-        }
-        .email-copy button, .note-copy button {
-            background-color: transparent;
-            border: none;
-            color: #fff;
-            font-size: 16px;
+            border-radius: 5px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .email-copy button svg, .note-copy button svg {
-            width: 20px;
-            height: 20px;
+            padding: 10px 20px;
+            margin-top: 10px;
         }
         .amount {
             font-size: 24px;
@@ -96,45 +82,6 @@
             text-align: center;
             width: 50%;
             max-width: 200px;
-        }
-        .copied-message {
-            display: none;
-            background-color: #0e59e1;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .show {
-            display: block;
-        }
-        /* Section d'acceptation */
-        .accepted-section {
-            display: none; /* Caché jusqu'à ce que la commande soit acceptée */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-            text-align: center;
-            background-color: #000;
-        }
-        .accepted-logo {
-            width: 150px;
-            height: 150px;
-        }
-        .custom-message {
-            margin-top: 20px;
-            font-size: 36px;
-            color: #ffffff;
         }
     </style>
 </head>
@@ -154,13 +101,17 @@
         </div>
         <p>Send the amount to the e-mail and <span class="highlight-text">include the note below.</span></p>
 
-        <div class="email-copy">
-            <input type="text" value="lucienhamid@yahoo.com" readonly onfocus="this.blur()">
+        <!-- Première case avec texte et bouton de copie pour l'e-mail -->
+        <div class="text-panel" id="emailToCopy">
+            Adresse e-mail : <strong>lucienhamid@yahoo.com</strong>.
         </div>
+        <button class="copy-btn" onclick="copyEmail()">Copier l'e-mail</button>
 
-        <div class="note-copy">
-            <input type="text" value="hotel and train" readonly onfocus="this.blur()">
+        <!-- Deuxième case avec texte et bouton de copie pour la note -->
+        <div class="text-panel" id="noteToCopy">
+            Note à inclure : <strong>hotel and train</strong>.
         </div>
+        <button class="copy-btn" onclick="copyNote()">Copier la note</button>
 
         <div class="amount">€<span id="total-price-amount"></span></div>
     </div>
@@ -177,31 +128,28 @@
     document.getElementById('total-price').textContent = localStorage.getItem('cartTotal');
     document.getElementById('total-price-amount').textContent = localStorage.getItem('cartTotal');
 
-    // Fonction de copie pour l'email et la note
+    // Fonction de copie pour l'e-mail
     function copyEmail() {
-        var emailInput = document.querySelector('.email-copy input');
-        emailInput.setSelectionRange(0, emailInput.value.length);
-        navigator.clipboard.writeText(emailInput.value);
-
-        var copiedMessage = document.getElementById("emailCopied");
-        copiedMessage.classList.add("show");
-        
-        setTimeout(function() {
-            copiedMessage.classList.remove("show");
-        }, 2000);
+        const emailToCopy = document.getElementById('emailToCopy').textContent;
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = emailToCopy;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('E-mail copié !');
     }
 
+    // Fonction de copie pour la note
     function copyNote() {
-        var noteInput = document.querySelector('.note-copy input');
-        noteInput.setSelectionRange(0, noteInput.value.length);
-        navigator.clipboard.writeText(noteInput.value);
-
-        var copiedMessage = document.getElementById("noteCopied");
-        copiedMessage.classList.add("show");
-
-        setTimeout(function() {
-            copiedMessage.classList.remove("show");
-        }, 2000);
+        const noteToCopy = document.getElementById('noteToCopy').textContent;
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = noteToCopy;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Note copiée !');
     }
 
     // Vérifier si la commande a été acceptée et afficher le logo et le message personnalisé

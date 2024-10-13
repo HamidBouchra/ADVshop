@@ -1,2 +1,0 @@
-# ADVshop
-SIte

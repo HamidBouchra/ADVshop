@@ -15,13 +15,24 @@
             background-color: #15171e;
             padding: 0 20px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             height: 100px;
         }
         .menu img {
             height: 120px;
             width: auto;
+        }
+        .icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            position: absolute;
+            right: 20px;
+        }
+        .user-icon img {
+            width: 20px;
+            height: 20px;
         }
         .cart-icon {
             position: relative;
@@ -47,17 +58,6 @@
             justify-content: center;
             align-items: center;
         }
-        .icons {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            position: absolute;
-            right: 20px;
-        }
-        .user-icon img {
-            width: 20px;
-            height: 20px;
-        }
         .container {
             padding: 20px;
             max-width: 1400px;
@@ -82,7 +82,6 @@
             transition: transform 0.3s;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
         .product:hover {
             transform: scale(1.05);
@@ -94,11 +93,11 @@
         }
         .product h3 {
             margin: 5px 0;
-            font-size: 12px;
+            font-size: 16px;
         }
         .product .price {
             color: #38a8ed;
-            font-size: 12px;
+            font-size: 18px;
             margin-bottom: 10px;
         }
         .product button {
@@ -110,7 +109,6 @@
             font-size: 14px;
             border-radius: 5px;
             width: 100%;
-            margin-top: auto;
         }
         .product button:hover {
             background-color: #4eafec;
@@ -145,7 +143,7 @@
         }
         .cart-sidebar-header h3 {
             margin: 0;
-            font-size: 14px;
+            font-size: 18px;
         }
         .cart-sidebar-header button {
             background-color: transparent;
@@ -169,14 +167,14 @@
             flex: 1;
         }
         .cart-item-price {
-            font-size: 12px;
+            font-size: 14px;
             color: #38a8ed;
         }
         .cart-subtotal {
             margin-top: auto;
             padding-top: 10px;
             border-top: 1px solid #333;
-            font-size: 14px;
+            font-size: 16px;
         }
         .cart-subtotal span {
             display: block;
@@ -191,7 +189,7 @@
         .cart-actions button {
             padding: 10px 15px;
             border: none;
-            font-size: 12px;
+            font-size: 14px;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -209,49 +207,42 @@
             background-color: #4eafec;
         }
 
-        /* Notification Modal */
+        /* Quantity Notification Modal */
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            background-color: rgba(0, 0, 0, 0.5);
         }
 
         .modal-content {
-            background-color: #15171e; /* Dark gray background to match the site */
-            margin: 20% auto; /* Centered modal */
+            background-color: #15171e;
+            margin: 20% auto;
             padding: 15px;
             border-radius: 10px;
             width: 300px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             color: white;
         }
 
         .modal-content h2 {
             font-size: 16px;
             margin: 10px 0;
-            color: #ffff; /* Red color for error */
+            color: #ffff;
         }
 
-        .modal-content p {
-            margin: 5px 0 15px;
-            color: #cfcfcf; /* Light gray text for details */
-        }
-
-        /* Smaller input box with white text */
         .modal-content input[type="number"] {
-            width: 80px; /* Smaller input field */
+            width: 80px;
             padding: 5px;
             margin: 5px 0;
             border-radius: 5px;
             border: 1px solid #555;
             background-color: #1e1f29;
-            color: white; /* White text */
+            color: white;
             text-align: center;
             font-size: 14px;
         }
@@ -262,7 +253,7 @@
             padding: 8px 15px;
             border: none;
             border-radius: 5px;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
         }
 
@@ -272,11 +263,6 @@
     </style>
 </head>
 <body>
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6761219292223499"
-     crossorigin="anonymous"></script>
-     
-    <meta name="google-adsense-account" content="ca-pub-6761219292223499">
 
 <header>
     <nav class="menu">
@@ -294,14 +280,14 @@
 </header>
 
 <div class="container">
-    <p class="breadcrumb">Home / Accounty</p>
+    <p class="breadcrumb">Home / Account</p>
 
     <div class="products">
         <div class="product">
             <img src="images/fivem.webp" alt="Acc Fivem Fresh">
             <h3>Acc Fivem Fresh</h3>
             <p class="price">0.80 €</p>
-            <button onclick="askForQuantity('Acc Fivem Fresh', 0.80, 'images/fivem.webp')">Ajouter au panier</button>
+            <button onclick="askForQuantity('Acc Fivem Fresh', 0.80, 'images/fivem.webp')">Choisir le nombre de comptes</button>
         </div>
         <div class="product">
             <img src="images/red.webp" alt="Red Dead Redemption II">
@@ -319,7 +305,7 @@
             <img src="images/ForzaH5.jpg" alt="Forza Horizon 5">
             <h3>Forza Horizon 5</h3>
             <p class="price">9.00 €</p>
-            <button onclick="addToCart('Forza Horizon 5', 8.00, 'images/ForzaH5.jpg')">Ajouter au panier</button>
+            <button onclick="addToCart('Forza Horizon 5', 9.00, 'images/ForzaH5.jpg')">Ajouter au panier</button>
         </div>
         <div class="product">
             <img src="images/escape-the-backrooms-729543.8.webp" alt="Escape the Backrooms">
@@ -347,7 +333,7 @@
         <span id="cart-total">Sous-total : 0,00 €</span>
         <div class="cart-actions">
             <button class="btn-view-cart">Voir le panier</button>
-            <button class="btn-checkout">Payer</button>
+            <button class="btn-checkout" onclick="proceedToCheckout()">Payer</button>
         </div>
     </div>
 </div>
@@ -365,14 +351,12 @@
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     let currentProduct = {};
 
-    // Function to ask for quantity when adding "Acc Fivem Fresh"
     function askForQuantity(name, price, image) {
         currentProduct = { name, price, image };
         const modal = document.getElementById('quantityModal');
         modal.style.display = 'block';
     }
 
-    // Function to confirm the quantity and add to cart
     function confirmQuantity() {
         const quantity = parseInt(document.getElementById('accountQuantity').value);
         if (quantity > 0) {
@@ -381,13 +365,11 @@
         }
     }
 
-    // Function to close the quantity modal
     function closeQuantityModal() {
         const modal = document.getElementById('quantityModal');
         modal.style.display = 'none';
     }
 
-    // Function to add an item to the cart with quantity
     function addToCart(name, price, image, quantity = 1) {
         const existingItemIndex = cart.findIndex(item => item.name === name);
 
@@ -402,7 +384,6 @@
         openCart();
     }
 
-    // Function to update the cart display
     function updateCart() {
         const cartItemsContainer = document.getElementById('cart-items');
         const cartCount = document.getElementById('cart-count');
@@ -430,28 +411,43 @@
         cartTotal.textContent = `Sous-total : ${total.toFixed(2)} €`;
     }
 
-    // Function to remove an item from the cart
     function removeFromCart(index) {
         cart.splice(index, 1);
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCart();
     }
 
-    // Function to open the cart sidebar
     function openCart() {
         const sidebar = document.getElementById('cart-sidebar');
         sidebar.classList.add('open');
         sidebar.style.visibility = 'visible';
     }
 
-    // Function to close the cart sidebar
     function closeCart() {
         const sidebar = document.getElementById('cart-sidebar');
         sidebar.classList.remove('open');
         sidebar.style.visibility = 'hidden';
     }
 
-    // Initialize cart display when page loads
+    function proceedToCheckout() {
+        const orderNumber = 'ORD-' + Math.floor(Math.random() * 1000000000);
+        const cartTotal = document.getElementById('cart-total').textContent.split(' ')[2];
+
+        // Sauvegarder la commande dans localStorage
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        orders.push({
+            orderNumber: orderNumber,
+            cart: cart,
+            totalPrice: cartTotal
+        });
+        localStorage.setItem('orders', JSON.stringify(orders));
+
+        localStorage.setItem('orderNumber', orderNumber);
+        localStorage.setItem('cartTotal', cartTotal);
+
+        window.location.href = 'payment.html';
+    }
+
     updateCart();
 </script>
 

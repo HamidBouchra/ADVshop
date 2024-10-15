@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Gestion des Commandes à Distance</title>
+    <title>Gestion des Commandes du Site</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,7 +76,7 @@
 <body>
 
 <div class="panel">
-    <h2>Gestion des Commandes à Distance</h2>
+    <h2>Gestion des Commandes du Site</h2>
     
     <table id="orders-table">
         <thead>
@@ -89,7 +89,7 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Les commandes seront insérées ici -->
+            <!-- Orders will be dynamically inserted here -->
         </tbody>
     </table>
 
@@ -104,22 +104,33 @@
 </div>
 
 <script>
-    let orders = [
-        { orderNumber: '001', cart: [{ name: 'Produit A', quantity: 2 }], totalPrice: 20, status: 'En attente' },
-        { orderNumber: '002', cart: [{ name: 'Produit B', quantity: 1 }], totalPrice: 10, status: 'En attente' },
-        { orderNumber: '003', cart: [{ name: 'Produit C', quantity: 5 }], totalPrice: 50, status: 'En attente' }
-    ];
-    
-    const correctPassword = 'tonmotdepasse';  // Change this to your desired password
+    const apiUrl = 'https://yourserver.com/api/orders';  // Replace with your actual API URL
+    const correctPassword = 'tonmotdepasse';  // Replace with your admin password
 
-    // Function to load orders in the table
-    function loadOrders() {
+    // Fetch orders from the server
+    async function fetchOrders() {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const orders = await response.json();
+            displayOrders(orders);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des commandes:', error);
+        }
+    }
+
+    // Display orders in the table
+    function displayOrders(orders) {
         const tableBody = document.querySelector('#orders-table tbody');
         tableBody.innerHTML = '';  // Clear the table
 
         orders.forEach((order, orderIndex) => {
             let productsDetails = '';
-            order.cart.forEach(item => {
+            order.products.forEach(item => {
                 productsDetails += `${item.name} x${item.quantity} <br>`;
             });
 
@@ -128,34 +139,44 @@
                 <td>${order.orderNumber}</td>
                 <td>${productsDetails}</td>
                 <td>${order.totalPrice} €</td>
-                <td>${order.status}</td>
+                <td>${order.status || 'En attente'}</td>
                 <td>
-                    <button onclick="deleteOrder(${orderIndex})">Refuser</button>
-                    <button onclick="acceptOrder(${orderIndex})">Accepter</button>
+                    <button onclick="deleteOrder(${order.orderNumber})">Refuser</button>
+                    <button onclick="acceptOrder(${order.orderNumber})">Accepter</button>
                 </td>
             `;
             tableBody.appendChild(row);
         });
     }
 
-    // Function to validate an order
-    function validateOrder() {
+    // Validate an order
+    async function validateOrder() {
         const orderNumber = document.getElementById('orderNumber').value;
         const password = document.getElementById('adminPassword').value;
         const customMessage = document.getElementById('customMessage').value;
         const messageElement = document.getElementById('message');
 
         if (password === correctPassword) {
-            const order = orders.find(o => o.orderNumber === orderNumber);
+            try {
+                const response = await fetch(`${apiUrl}/${orderNumber}/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ customMessage })
+                });
+                const result = await response.json();
 
-            if (order) {
-                order.status = 'Validée';
-                order.customMessage = customMessage;
-                messageElement.textContent = `Commande ${orderNumber} validée avec succès !`;
-                messageElement.className = 'message success';
-                loadOrders();
-            } else {
-                messageElement.textContent = 'Numéro de commande incorrect.';
+                if (result.success) {
+                    messageElement.textContent = `Commande ${orderNumber} validée avec succès !`;
+                    messageElement.className = 'message success';
+                    fetchOrders();  // Refresh orders after validation
+                } else {
+                    messageElement.textContent = result.message || 'Erreur lors de la validation.';
+                    messageElement.className = 'message error';
+                }
+            } catch (error) {
+                messageElement.textContent = 'Erreur lors de la validation.';
                 messageElement.className = 'message error';
             }
         } else {
@@ -164,20 +185,29 @@
         }
     }
 
-    // Function to reject an order
-    function deleteOrder(orderIndex) {
-        orders.splice(orderIndex, 1);
-        loadOrders();  // Reload the orders
-    }
+    // Reject an order
+    async function deleteOrder(orderNumber) {
+        try {
+            const response = await fetch(`${apiUrl}/${orderNumber}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
 
-    // Function to accept an order
-    function acceptOrder(orderIndex) {
-        orders[orderIndex].status = 'Acceptée';
-        loadOrders();  // Reload the orders
+            if (result.success) {
+                fetchOrders();  // Refresh orders after rejection
+            } else {
+                console.error('Erreur lors du refus de la commande:', result.message);
+            }
+        } catch (error) {
+            console.error('Erreur lors du refus de la commande:', error);
+        }
     }
 
     // Load orders on page load
-    window.onload = loadOrders;
+    window.onload = fetchOrders;
 </script>
 
 </body>

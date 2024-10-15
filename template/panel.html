@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Gestion des Commandes</title>
+    <title>Panel de Gestion des Commandes en Temps Réel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #333; /* Gris foncé pour le fond */
+            background-color: #333;
             color: #f5f5f5;
             margin: 0;
             padding: 20px;
@@ -15,7 +15,7 @@
         .panel {
             max-width: 800px;
             margin: 0 auto;
-            background-color: #555; /* Gris clair pour encadrer le contenu */
+            background-color: #555;
             padding: 20px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
@@ -37,10 +37,9 @@
             text-align: left;
         }
         th {
-            background-color: #666; /* Gris pour le fond des titres */
+            background-color: #666;
         }
         .form-container {
-            text-align: 120px;
             margin-top: 20px;
         }
         input[type="text"], input[type="password"], textarea {
@@ -72,49 +71,25 @@
         .error {
             color: red;
         }
-        .copy-text {
-            background-color: #666; /* Fond gris pour encadrer le texte */
-            padding: 10px;
-            border: 1px solid #888; /* Bordure gris clair */
-            border-radius: 5px;
-            margin-bottom: 20px;
-            color: #f5f5f5; /* Couleur du texte */
-        }
-        .copy-btn {
-            background-color: #4eafec;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 10px 20px;
-            margin-bottom: 20px;
-        }
-        .copy-btn:hover {
-            background-color: #38a8ed;
-        }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2>Gestion des Commandes</h2>
+    <h2>Gestion des Commandes en Temps Réel</h2>
     
-    <div class="copy-text" id="textToCopy">
-        Voici le texte que tu peux copier.
-    </div>
-    <button class="copy-btn" onclick="copyText()">Copier le texte</button>
-
     <table id="orders-table">
         <thead>
             <tr>
                 <th>Numéro de Commande</th>
                 <th>Produits</th>
                 <th>Prix Total</th>
+                <th>Statut</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Commandes dynamiques seront insérées ici -->
+            <!-- Les commandes seront insérées ici -->
         </tbody>
     </table>
 
@@ -129,13 +104,12 @@
 </div>
 
 <script>
-    // Récupérer les commandes depuis localStorage
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
-    const correctPassword = 'Salope';  // Définissez ici votre mot de passe
+    let orders = [];
+    const correctPassword = 'monmotdepasse';  // Set your password here
 
     function loadOrders() {
         const tableBody = document.querySelector('#orders-table tbody');
-        tableBody.innerHTML = ''; // Vider le tableau avant de le recharger
+        tableBody.innerHTML = '';  // Clear the table
 
         orders.forEach((order, orderIndex) => {
             let productsDetails = '';
@@ -148,76 +122,71 @@
                 <td>${order.orderNumber}</td>
                 <td>${productsDetails}</td>
                 <td>${order.totalPrice} €</td>
-                <td id="actions-${order.orderNumber}">
-                    <button class="delete-btn" onclick="deleteOrder(${orderIndex})">Refuser</button>
-                    <button class="accept-btn" onclick="acceptOrder(${orderIndex})">Accepter</button>
+                <td>${order.status || 'En attente'}</td>
+                <td>
+                    <button onclick="deleteOrder(${orderIndex})">Refuser</button>
+                    <button onclick="acceptOrder(${orderIndex})">Accepter</button>
                 </td>
             `;
             tableBody.appendChild(row);
         });
     }
 
-    function copyText() {
-        const textToCopy = document.getElementById('textToCopy').textContent;
-        const tempInput = document.createElement('input');
-        document.body.appendChild(tempInput);
-        tempInput.value = textToCopy;
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        alert('Texte copié !');
-    }
-
-    // Supprimer une commande
-    function deleteOrder(orderIndex) {
-        orders.splice(orderIndex, 1);
-        localStorage.setItem('orders', JSON.stringify(orders));
-        loadOrders(); // Recharger les commandes après suppression
-        alert('Commande refusée avec succès.');
-    }
-
-    // Valider la commande après vérification du numéro de commande et du mot de passe
     function validateOrder() {
-        const orderNumberInput = document.getElementById('orderNumber').value;
-        const passwordInput = document.getElementById('adminPassword').value;
-        const messageElement = document.getElementById('message');
+        const orderNumber = document.getElementById('orderNumber').value;
+        const password = document.getElementById('adminPassword').value;
         const customMessage = document.getElementById('customMessage').value;
+        const messageElement = document.getElementById('message');
 
-        // Vérifier si le mot de passe est correct
-        if (passwordInput === correctPassword) {
-            // Vérifier si le numéro de commande existe
-            const order = orders.find(o => o.orderNumber === orderNumberInput);
+        if (password === correctPassword) {
+            const order = orders.find(o => o.orderNumber === orderNumber);
+
             if (order) {
-                order.customMessage = customMessage;  // Enregistrer le message personnalisé
+                order.status = 'Validée';
+                order.customMessage = customMessage;
                 localStorage.setItem('orders', JSON.stringify(orders));
-                messageElement.textContent = `Commande ${orderNumberInput} validée avec succès !`;
+                messageElement.textContent = `Commande ${orderNumber} validée avec succès !`;
                 messageElement.className = 'message success';
+                loadOrders();
             } else {
-                messageElement.textContent = `Numéro de commande incorrect. Veuillez réessayer.`;
+                messageElement.textContent = 'Numéro de commande incorrect.';
                 messageElement.className = 'message error';
             }
         } else {
-            messageElement.textContent = 'Mot de passe incorrect. Commande non validée.';
+            messageElement.textContent = 'Mot de passe incorrect.';
             messageElement.className = 'message error';
         }
     }
 
-    // Accepter une commande
-    function acceptOrder(orderIndex) {
-        const order = orders[orderIndex];
-        const actionsCell = document.getElementById(`actions-${order.orderNumber}`);
-        
-        // Remplacer les boutons par un logo "Accepté" et le message personnalisé
-        actionsCell.innerHTML = `
-            <img src="images/accepted-logo.png" alt="Accepté" class="accepted-logo">
-            <span>${order.customMessage || 'Commande acceptée'}</span>
-        `;
-
-        alert('Commande acceptée avec succès.');
+    function deleteOrder(orderIndex) {
+        orders.splice(orderIndex, 1);
+        localStorage.setItem('orders', JSON.stringify(orders));
+        loadOrders();  // Reload the orders
     }
 
-    // Charger les commandes dès que la page est ouverte
-    window.onload = loadOrders;
+    function acceptOrder(orderIndex) {
+        orders[orderIndex].status = 'Acceptée';
+        localStorage.setItem('orders', JSON.stringify(orders));
+        loadOrders();  // Reload the orders
+    }
+
+    function updateOrdersRealTime() {
+        setInterval(() => {
+            // Simulate real-time data fetching
+            // In a real-world case, this should use WebSockets or an API call to get the new data
+            const newOrders = JSON.parse(localStorage.getItem('orders')) || [];
+            if (newOrders.length !== orders.length) {
+                orders = newOrders;
+                loadOrders();
+            }
+        }, 5000); // Update every 5 seconds
+    }
+
+    window.onload = () => {
+        orders = JSON.parse(localStorage.getItem('orders')) || [];
+        loadOrders();
+        updateOrdersRealTime();
+    };
 </script>
 
 </body>

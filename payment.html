@@ -6,7 +6,7 @@
     <title>Payment Panel</title>
     <style>
         body {
-            background-color: #111; /* Fond gris foncé */
+            background-color: #111; /* Dark background */
             color: #fff;
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -73,16 +73,18 @@
             width: 85%;
         }
         .email-copy button, .note-copy button {
-            background-color: #4eafec;
+            background-color: transparent;
             border: none;
-            color: white;
+            color: #fff;
             font-size: 16px;
-            padding: 8px 12px;
-            border-radius: 5px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .email-copy button svg, .note-copy button svg {
+            width: 20px;
+            height: 20px;
         }
         .amount {
             font-size: 24px;
@@ -95,8 +97,24 @@
             width: 50%;
             max-width: 200px;
         }
+        .copied-message {
+            display: none;
+            background-color: #0e59e1;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .show {
+            display: block;
+        }
+        /* Acceptance Section */
         .accepted-section {
-            display: none; /* Caché jusqu'à ce que la commande soit acceptée */
+            display: none; /* Hidden until the order is accepted */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -135,49 +153,62 @@
             <p><span class="info-icon">ℹ️</span>Send as <strong>Friends & Family</strong>. If your PayPal doesn’t support it, <strong>do not</strong> send the payment. Please contact us to send the payment directly.</p>
         </div>
 
-        <!-- Case pour l'email avec un bouton copier -->
+        <!-- Email copy field with button -->
         <div class="email-copy">
-            <input type="text" value="lucienhamid@yahoo.com" readonly>
-            <button onclick="copyText('email-copy')">Copier l'email</button>
+            <input type="text" value="lucienhamid@yahoo.com" readonly onfocus="this.blur()">
+            <button onclick="copyEmail()">Copier l'email</button>
         </div>
 
-        <!-- Case pour la note avec un bouton copier -->
+        <!-- Note copy field with button -->
         <div class="note-copy">
-            <input type="text" value="hotel and train" readonly>
-            <button onclick="copyText('note-copy')">Copier la note</button>
+            <input type="text" value="hotel and train" readonly onfocus="this.blur()">
+            <button onclick="copyNote()">Copier la note</button>
         </div>
 
         <div class="amount">€<span id="total-price-amount"></span></div>
     </div>
 </div>
 
-<!-- Section qui s'affiche quand la commande est validée -->
+<!-- Section that appears when the order is validated -->
 <div class="accepted-section" id="accepted-section">
     <img src="images/correct_17996777.png" alt="Validé" class="accepted-logo">
     <div class="custom-message" id="customMessage">Commande acceptée !</div>
 </div>
 
 <script>
-    document.getElementById('order-number').textContent = "123456"; // Placeholder pour tests sans localStorage
-    document.getElementById('total-price').textContent = "150.00"; // Placeholder
-    document.getElementById('total-price-amount').textContent = "150.00"; // Placeholder
+    // Update the total price dynamically from the cart
+    document.getElementById('order-number').textContent = localStorage.getItem('orderNumber');
+    document.getElementById('total-price').textContent = localStorage.getItem('cartTotal');
+    document.getElementById('total-price-amount').textContent = localStorage.getItem('cartTotal');
+    
+    // Function to copy email
+    function copyEmail() {
+        var emailInput = document.querySelector('.email-copy input');
+        emailInput.setSelectionRange(0, emailInput.value.length);
+        navigator.clipboard.writeText(emailInput.value);
 
-    // Fonction de copie pour l'email et la note
-    function copyText(className) {
-        var inputField = document.querySelector(`.${className} input`);
-        inputField.select();
-        inputField.setSelectionRange(0, 99999); // Pour mobile
-        navigator.clipboard.writeText(inputField.value);
-        alert(inputField.value + " copié !");
+        alert('Email copié !');
     }
 
-    // Vérifier si la commande a été acceptée et afficher le logo et le message personnalisé
+    // Function to copy note
+    function copyNote() {
+        var noteInput = document.querySelector('.note-copy input');
+        noteInput.setSelectionRange(0, noteInput.value.length);
+        navigator.clipboard.writeText(noteInput.value);
+
+        alert('Note copiée !');
+    }
+
+    // Check if the order has been accepted and display the logo and custom message
     const orders = JSON.parse(localStorage.getItem('orders')) || [];
     const orderNumber = localStorage.getItem('orderNumber');
     const order = orders.find(o => o.orderNumber === orderNumber);
     if (order && order.customMessage) {
-        document.getElementById('content').style.display = 'none'; // Supprimer tout le contenu de la page
-        document.getElementById('accepted-section').style.display = 'flex'; // Afficher la section de validation
+        // Hide the main content
+        document.getElementById('content').style.display = 'none';
+
+        // Show the validation section
+        document.getElementById('accepted-section').style.display = 'flex';
         document.getElementById('customMessage').textContent = order.customMessage;
     }
 </script>
